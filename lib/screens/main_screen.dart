@@ -13,11 +13,11 @@ HubConnection? connection;
 class MainScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return _MainState();
+    return MainState();
   }
 }
 
-class _MainState extends State<MainScreen> {
+class MainState extends State<MainScreen> {
   int _selectedInner = 0;
 
   int _unreadMessages = 0;
@@ -118,6 +118,12 @@ class _MainState extends State<MainScreen> {
     hub.listenOnUpdateUnreadMessages(_onUpdateUnreadMessagesHandler);
 
     _makeUnreadMessagesRequest();
+  }
+
+  selectScreen(int number) {
+    setState(() {
+      _selectedInner = number;
+    });
   }
 
   _onUpdateUnreadMessagesHandler(int? unreadMessages) async {

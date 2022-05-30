@@ -57,13 +57,24 @@ class ChatState extends State<ChatScreen> {
 
             chatData = data;
 
+            final users = chatData.chatInfo.users
+                .where((element) => element.id != userId);
+            final userTo = users.isNotEmpty ? users.last : null;
+
             defaultWidget = Scaffold(
                 body: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
               children: [
-                ChatAppBar(data.chatInfo.id, data.chatInfo.name,
-                    data.profileInfo.imageUrl),
+                ChatAppBar(
+                    data.chatInfo.id,
+                    !chatData.chatInfo.isPrivate
+                        ? data.chatInfo.name
+                        : userTo!.name,
+                    data.profileInfo.imageUrl,
+                    toImageUrl:
+                        data.chatInfo.isPrivate ? userTo!.imageUrl : null,
+                    toId: data.chatInfo.isPrivate ? userTo!.id : null),
                 Expanded(child: ChatMessagesList(data)),
                 ChatInput(widget.chatId)
               ],

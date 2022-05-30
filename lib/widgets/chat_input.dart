@@ -63,6 +63,8 @@ class _ChatInputState extends State<ChatInput> {
                       .read<ChatConnection>()
                       .sendMessage(chatId, _message.toString());
 
+                  FocusScope.of(context).unfocus();
+
                   setState(() {
                     _message.clear();
                     _controller.clear();

@@ -36,6 +36,7 @@ class UserInfo {
 class ChatInfo {
   late final int id;
   late final String name;
+  late final bool isPrivate;
   late final List<UserInfo> users;
   late final List<UserInfo> historyUsers;
   late final int ownerId;
@@ -46,11 +47,9 @@ class ChatInfo {
 
   ChatInfo.fromJson(Map<String, dynamic> json) {
     id = json["id"];
-    name = json["name"];
+    name = json["name"] ?? '';
     users = _getUsers(json["chatUsers"]);
-
-    print('$name, userCount: ${users.length}');
-
+    isPrivate = json['isPrivate'];
     historyUsers = _getUsers(json["historyUsers"]);
     ownerId = json['ownerId'];
     unreadMessages = json['unreadMessages'];

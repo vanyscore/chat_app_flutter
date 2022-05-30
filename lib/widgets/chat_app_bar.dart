@@ -1,4 +1,5 @@
 import 'package:chat_app/interactors/chat_interactor.dart';
+import 'package:chat_app/managers/chat_connection.dart';
 import 'package:chat_app/screens/chat_edit_screen.dart';
 import 'package:chat_app/screens/chat_screen.dart';
 import 'package:chat_app/widgets/avatar.dart';
@@ -10,9 +11,12 @@ import 'package:provider/provider.dart';
 class ChatAppBar extends StatelessWidget {
   final int chatId;
   final String name;
-  final String imageUrl;
+  final int? toId;
+  final String? toImageUrl;
+  final String fromImageUrl;
 
-  ChatAppBar(this.chatId, this.name, this.imageUrl);
+  ChatAppBar(this.chatId, this.name, this.fromImageUrl,
+      {this.toImageUrl, this.toId});
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +38,13 @@ class ChatAppBar extends StatelessWidget {
                 Icons.arrow_back_outlined,
                 color: Colors.white,
               )),
+          if (toImageUrl != null) ...{
+            Avatar(toImageUrl!,
+                context.read<ChatConnection>().isUserOnline(toId!), 30),
+            SizedBox(
+              width: 10,
+            )
+          },
           Expanded(
             child: Text(
               name,
@@ -60,7 +71,8 @@ class ChatAppBar extends StatelessWidget {
               color: Colors.white,
             ),
           ),
-          if (userId == chatData.chatInfo.ownerId) ...{
+          if (!chatData.chatInfo.isPrivate &&
+              userId == chatData.chatInfo.ownerId) ...{
             IconButton(
                 onPressed: () async {
                   await Navigator.of(context).push(MaterialPageRoute(
@@ -73,7 +85,7 @@ class ChatAppBar extends StatelessWidget {
                   color: Colors.white,
                 ))
           },
-          Avatar(imageUrl, true, 30)
+          Avatar(fromImageUrl, true, 30)
         ],
       ),
     );

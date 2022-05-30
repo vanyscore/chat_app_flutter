@@ -57,8 +57,10 @@ class ChatAppBar extends StatelessWidget {
           IconButton(
             onPressed: () async {
               final image = await ImagePicker().getImage(
-                source: ImageSource.gallery,
-              );
+                  source: ImageSource.gallery,
+                  maxHeight: 1000,
+                  maxWidth: 1000,
+                  imageQuality: 75);
 
               if (image != null) {
                 context

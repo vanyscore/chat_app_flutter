@@ -103,7 +103,7 @@ class ChatConnection {
 
     final msg = ChatMessage.fromJson(json);
 
-    print('onMessageHandlers len: ${_onMessageHandlers.length}');
+    print('onMsgHandlers len: ${_onMessageHandlers.length}');
 
     _onMessageHandlers.forEach((element) {
       element.call(msg);

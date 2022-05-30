@@ -104,8 +104,6 @@ class MainState extends State<MainScreen> {
   deactivate() {
     final hub = context.read<ChatConnection>();
 
-    print('deactivate');
-
     hub.disableOnUpdateUnreadMessages(_onUpdateUnreadMessagesHandler);
 
     super.deactivate();

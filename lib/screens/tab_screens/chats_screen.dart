@@ -68,8 +68,6 @@ class _ChatsState extends State<ChatsScreen> {
                           });
 
                       if (chatName != null && chatName.isNotEmpty) {
-                        print("Имя чата: " + chatName);
-
                         final result = await context
                             .read<ChatInteractor>()
                             .createChat(chatName);
@@ -97,8 +95,6 @@ class _ChatsState extends State<ChatsScreen> {
 
   @override
   deactivate() {
-    print('deactivate()');
-
     context.read<ChatConnection>().disableMessageListening(_onNewMessage);
 
     super.deactivate();
@@ -132,11 +128,16 @@ class _ChatsState extends State<ChatsScreen> {
 
   _onNewMessage(ChatMessage message) {
     setState(() {
-      _chats
-          .where((element) => element.id == message.chatId)
-          .forEach((element) {
-        element.unreadMessages++;
-      });
+      try {
+        _chats
+            .where((element) => element.id == message.chatId)
+            .forEach((element) {
+          element.lastMessage = message;
+          element.unreadMessages++;
+        });
+      } catch (ex, st) {
+        print(ex.toString());
+      }
 
       if (_chats.where((element) => element.id == message.chatId).isEmpty) {
         _load();
@@ -153,6 +154,11 @@ class _CommonChatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final len = (chat.users.length > 5 ? 5 : chat.users.length) + 1;
+    final lastMsgSenderName = chat.lastMessageSenderName;
+    final lastMsgDesc = chat.lastMessageDesc;
+
+    final isOurMsg = context.findAncestorStateOfType<_ChatsState>()?._userId ==
+        chat.lastMessage?.senderId;
 
     return Card(
         child: InkWell(
@@ -164,84 +170,114 @@ class _CommonChatCard extends StatelessWidget {
             },
             child: Container(
                 padding: EdgeInsets.all(10),
-                child: Row(
+                child: Column(
                   children: [
-                    Container(
-                      width: 150,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
+                    Row(
+                      children: [
+                        Container(
+                          width: 150,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
-                                "Чат:",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
+                              Row(
+                                children: [
+                                  Text(
+                                    "Чат:",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Flexible(child: Text(chat.name))
+                                ],
                               ),
-                              SizedBox(width: 10),
-                              Flexible(child: Text(chat.name))
+                              Row(
+                                children: [
+                                  Text(
+                                    "Участники:",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Text(chat.users.length.toString())
+                                ],
+                              )
                             ],
                           ),
-                          Row(
-                            children: [
-                              Text(
-                                "Участники:",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-                              SizedBox(width: 10),
-                              Text(chat.users.length.toString())
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: SizedBox(
-                          height: 20,
-                          child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: len,
-                              itemBuilder: (context, index) {
-                                if (index < len - 1) {
-                                  final user = chat.users[index];
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: SizedBox(
+                              height: 20,
+                              child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: len,
+                                  itemBuilder: (context, index) {
+                                    if (index < len - 1) {
+                                      final user = chat.users[index];
 
-                                  return Container(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 2.5),
-                                    child: Avatar(
-                                        user.imageUrl,
-                                        context
-                                            .read<ChatConnection>()
-                                            .isUserOnline(user.id),
-                                        20),
-                                  );
-                                } else {
-                                  return Text('  ...');
-                                }
-                              }),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                    if (chat.unreadMessages > 0) ...{
-                      Container(
-                        height: 24,
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(90)),
-                        child: Center(
-                          child: Text(
-                            '+' + chat.unreadMessages.toString(),
-                            style: TextStyle(color: Colors.white),
+                                      return Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 2.5),
+                                        child: Avatar(
+                                            user.imageUrl,
+                                            context
+                                                .read<ChatConnection>()
+                                                .isUserOnline(user.id),
+                                            20),
+                                      );
+                                    } else {
+                                      return Text('  ...');
+                                    }
+                                  }),
+                            ),
                           ),
                         ),
+                        SizedBox(width: 10),
+                        if (chat.unreadMessages > 0) ...{
+                          Container(
+                            height: 24,
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(90)),
+                            child: Center(
+                              child: Text(
+                                '+' + chat.unreadMessages.toString(),
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          )
+                        }
+                      ],
+                    ),
+                    if (lastMsgSenderName != null) ...{
+                      SizedBox(
+                        height: 2.5,
+                      ),
+                      Row(
+                        children: [
+                          Text(
+                            isOurMsg ? 'Вы:' : lastMsgSenderName + ':',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              lastMsgDesc!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          )
+                        ],
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
                       )
                     }
                   ],
@@ -259,6 +295,11 @@ class _PrivateChatCard extends StatelessWidget {
     final len = (chat.users.length > 5 ? 5 : chat.users.length) + 1;
     final userTo = chat.users.singleWhere((element) =>
         element.id != context.findAncestorStateOfType<_ChatsState>()!._userId);
+    final lastMsgSenderName = chat.lastMessageSenderName;
+    final lastMsgDesc = chat.lastMessageDesc;
+
+    final isOurMsg = context.findAncestorStateOfType<_ChatsState>()?._userId ==
+        chat.lastMessage?.senderId;
 
     return Card(
         child: InkWell(
@@ -286,6 +327,7 @@ class _PrivateChatCard extends StatelessWidget {
                       width: 150,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
@@ -294,9 +336,26 @@ class _PrivateChatCard extends StatelessWidget {
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               SizedBox(width: 10),
-                              Flexible(child: Text(chat.name))
+                              Flexible(child: Text(chat.name)),
                             ],
-                          )
+                          ),
+                          if (lastMsgSenderName != null) ...{
+                            if (isOurMsg) ...{
+                              Text(
+                                "Вы",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              )
+                            },
+                            SizedBox(
+                              height: 2.5,
+                            ),
+                            Text(
+                              "$lastMsgDesc",
+                              style: TextStyle(),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          }
                         ],
                       ),
                     ),

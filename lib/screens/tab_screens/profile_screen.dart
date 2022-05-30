@@ -44,8 +44,6 @@ class _ProfileState extends State<ProfileScreen> {
   }
 
   void makeRequest() async {
-    print('make request');
-
     imageCache.clear();
     imageCache.clearLiveImages();
 

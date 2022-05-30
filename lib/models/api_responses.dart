@@ -37,6 +37,7 @@ class ChatInfo {
   late final int id;
   late final String name;
   late final bool isPrivate;
+  late ChatMessage? lastMessage;
   late final List<UserInfo> users;
   late final List<UserInfo> historyUsers;
   late final int ownerId;
@@ -45,11 +46,53 @@ class ChatInfo {
 
   late final List<UserInfo> allUsers;
 
+  String? get lastMessageSenderName {
+    String? name;
+
+    if (lastMessage != null) {
+      final sender =
+          allUsers.where((element) => element.id == lastMessage!.senderId);
+
+      if (sender.isNotEmpty) {
+        name = sender.first.name;
+      }
+    }
+
+    return name;
+  }
+
+  String? get lastMessageDesc {
+    String? desc;
+
+    if (lastMessage != null) {
+      if (lastMessage?.message != null) {
+        desc = lastMessage!.message;
+      }
+
+      if (lastMessage?.image != null) {
+        desc = 'Изображение';
+      }
+    }
+
+    print('msg:' + desc.toString());
+
+    return desc;
+  }
+
   ChatInfo.fromJson(Map<String, dynamic> json) {
     id = json["id"];
     name = json["name"] ?? '';
     users = _getUsers(json["chatUsers"]);
     isPrivate = json['isPrivate'];
+
+    final jsonLastMessage = json['lastMessage'];
+
+    if (jsonLastMessage != null) {
+      lastMessage = ChatMessage.fromJson(jsonLastMessage);
+    } else {
+      lastMessage = null;
+    }
+
     historyUsers = _getUsers(json["historyUsers"]);
     ownerId = json['ownerId'];
     unreadMessages = json['unreadMessages'];

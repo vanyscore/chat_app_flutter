@@ -27,6 +27,8 @@ class _MainState extends State<MainScreen> {
     super.initState();
 
     WidgetsBinding?.instance.addPostFrameCallback((timeStamp) {
+      context.read<ChatConnection>().connect();
+
       updateUnreadMessages();
     });
   }
@@ -112,6 +114,7 @@ class _MainState extends State<MainScreen> {
   updateUnreadMessages() async {
     final hub = context.read<ChatConnection>();
 
+    hub.disableOnUpdateUnreadMessages(_onUpdateUnreadMessagesHandler);
     hub.listenOnUpdateUnreadMessages(_onUpdateUnreadMessagesHandler);
 
     _makeUnreadMessagesRequest();

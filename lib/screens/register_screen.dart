@@ -19,6 +19,8 @@ class _RegisterState extends State<RegisterScreen> {
   final _passwordOneController = TextEditingController();
   final _passwordTwoController = TextEditingController();
 
+  bool _isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,6 +38,18 @@ class _RegisterState extends State<RegisterScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Padding(
+                    padding: EdgeInsets.all(5),
+                    child: Container(
+                      height: 10,
+                      child: _isLoading
+                          ? LinearProgressIndicator(
+                              minHeight: 5,
+                              value: null,
+                            )
+                          : null,
+                    ),
+                  ),
                   TextFormField(
                     controller: _nameController,
                     decoration: InputDecoration(
@@ -70,7 +84,7 @@ class _RegisterState extends State<RegisterScreen> {
                     obscureText: true,
                   ),
                   ElevatedButton(
-                      onPressed: _handleRegisterClick,
+                      onPressed: _isLoading ? null : _handleRegisterClick,
                       child: Text("Зарегестрироваться"))
                 ],
               ),
@@ -124,11 +138,19 @@ class _RegisterState extends State<RegisterScreen> {
     }
 
     if (isValid) {
+      setState(() {
+        _isLoading = true;
+      });
+
       final authResult = await context.read<AuthInteractor>().register(
           _nameController.text.toString(),
           _emailController.text.toString(),
           _phoneController.text.toString(),
           _passwordOneController.text.toString());
+
+      setState(() {
+        _isLoading = false;
+      });
 
       if (authResult.data != null) {
         Navigator.of(context).pushNamedAndRemoveUntil('/main', (r) => false);

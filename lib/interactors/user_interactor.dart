@@ -1,6 +1,5 @@
 import 'package:chat_app/models/api_responses.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:http_parser/http_parser.dart';
 
 typedef UserInfoCallback = void Function(UserInfo userInfo);
@@ -77,8 +76,6 @@ class UserInteractor {
       print("Status code: " + response.statusCode.toString());
 
       if (response.statusCode == 200) {
-        imageCache.clear();
-
         return null;
       } else {
         return "Вы не можете изменить данный профиль";

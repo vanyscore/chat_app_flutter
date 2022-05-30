@@ -22,7 +22,7 @@ class UserInfo {
   final String email;
   final String telephone;
   final int avatarId;
-  final String imageUrl;
+  String imageUrl;
 
   UserInfo.fromJson(Map<String, dynamic> json)
       : id = json["id"],

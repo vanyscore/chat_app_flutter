@@ -25,28 +25,14 @@ class ChatConnection {
   }
 
   connectToChat(int chatId) async {
-    print('try connect to chat: $chatId');
-
-    await checkConnection();
-
-    if (_connection != null) {
-      await _connection!.send(methodName: "ConnectToChat", args: [chatId]);
-    }
+    await _connection!.send(methodName: "ConnectToChat", args: [chatId]);
   }
 
   listenMessages(OnNewMessageCallback onMessage) async {
-    print('listent messages');
-
-    await checkConnection();
-
-    print('listen messages()');
-
     _onMessageHandlers.add(onMessage);
   }
 
   disableMessageListening(OnNewMessageCallback callback) async {
-    await checkConnection();
-
     print('result on message handlers len: ${_onMessageHandlers.length}');
 
     _onMessageHandlers.remove(callback);
@@ -59,50 +45,42 @@ class ChatConnection {
       OnUpdateUnreadMessages onUpdateUnreadMessages) async {
     print('listenOnUpdateUnreadMessages');
 
-    await checkConnection();
-
     _unreadMessagesHandlers.add(onUpdateUnreadMessages);
   }
 
   disableOnUpdateUnreadMessages(OnUpdateUnreadMessages callback) async {
-    await checkConnection();
-
     _unreadMessagesHandlers.remove(callback);
   }
 
   sendMessage(int chatId, String message) async {
-    await checkConnection();
-
     if (_connection?.state == HubConnectionState.connected) {
       await _connection!.send(methodName: "Send", args: [chatId, message]);
     }
   }
 
-  checkConnection() async {
+  connect() async {
     try {
-      if (_connection == null) {
-        _connection = _connection = HubConnectionBuilder()
-            .withAutomaticReconnect()
-            .withUrl(
-                "http://$host:$port/chat",
-                HttpConnectionOptions(
-                    accessTokenFactory: () => userManager.getAccessToken()))
-            .build();
+      _connection = _connection = HubConnectionBuilder()
+          .withAutomaticReconnect()
+          .withUrl(
+              "http://$host:$port/chat",
+              HttpConnectionOptions(
+                  accessTokenFactory: () => userManager.getAccessToken()))
+          .build();
 
-        _connection?.on("Connect", (arguments) {
-          print("Connected: $arguments");
-        });
-        _connection?.onclose((exception) {
-          print("Chat connections loss: $exception");
-        });
+      _connection?.on("Connect", (arguments) {
+        print("Connected: $arguments");
+      });
+      _connection?.onclose((exception) {
+        print("Chat connections loss: $exception");
+      });
 
-        _connection!.on(_EventTypes.OnMessage, _onMessage);
-        _connection?.on(_EventTypes.OnUnreadMessages, _onUnreadMessages);
+      _connection!.on(_EventTypes.OnMessage, _onMessage);
+      _connection?.on(_EventTypes.OnUnreadMessages, _onUnreadMessages);
 
-        _connection?.on("UserConnection", _onUserConnectionChanged);
+      _connection?.on("UserConnection", _onUserConnectionChanged);
 
-        await _connection?.start();
-      }
+      await _connection?.start();
     } catch (ex, trace) {
       print(ex.toString());
       print(trace);
@@ -114,7 +92,7 @@ class ChatConnection {
     _unreadMessagesHandlers.clear();
     _onlineUsers.clear();
 
-    _connection?.stop();
+    await _connection?.stop();
     _connection = null;
   }
 

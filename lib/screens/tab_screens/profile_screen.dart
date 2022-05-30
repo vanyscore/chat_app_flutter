@@ -29,7 +29,9 @@ class _ProfileState extends State<ProfileScreen> {
   initState() {
     super.initState();
 
-    makeRequest();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      makeRequest();
+    });
   }
 
   @override
@@ -42,6 +44,11 @@ class _ProfileState extends State<ProfileScreen> {
   }
 
   void makeRequest() async {
+    print('make request');
+
+    imageCache.clear();
+    imageCache.clearLiveImages();
+
     if (widget.userId == null) {
       final token = await context.read<UserManager>().getAccessToken();
       final profile = await context.read<UserInteractor>().getUserInfo();
@@ -94,6 +101,7 @@ class _ProfileInfo extends StatelessWidget {
                     child: GestureDetector(
                       child: Image.network(
                         profile!.imageUrl,
+                        key: UniqueKey(),
                         fit: BoxFit.cover,
                       ),
                       onTap: () {
@@ -116,9 +124,7 @@ class _ProfileInfo extends StatelessWidget {
                           .updateImage(profile.id, image.path);
 
                       if (result == null) {
-                        state?.setState(() {
-                          state._profile = null;
-                        });
+                        state?.makeRequest();
                       } else {
                         ScaffoldMessenger.of(context)
                             .showSnackBar(SnackBar(content: Text(result)));

@@ -14,6 +14,8 @@ class _LoginState extends State<LoginScreen> {
   final _loginController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  bool _isLoading = false;
+
   String? _loginError;
   String? _passwordError;
 
@@ -26,46 +28,69 @@ class _LoginState extends State<LoginScreen> {
               FocusScope.of(context).unfocus();
             },
             child: Container(
-              color: Colors.white,
-              padding: EdgeInsets.all(20.0),
+              height: double.infinity,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  TextFormField(
-                      controller: _loginController,
-                      decoration: InputDecoration(
-                          hintText: "Введите номер телефона/почту",
-                          errorText: _loginError),
-                      onChanged: (text) {
-                        if (text.isNotEmpty && _loginError != null) {
-                          setState(() {
-                            _loginError = null;
-                          });
-                        }
-                      }),
-                  TextFormField(
-                      controller: _passwordController,
-                      decoration: InputDecoration(
-                          hintText: "Введите пароль",
-                          errorText: _passwordError),
-                      obscureText: true,
-                      onChanged: (text) {
-                        if (text.isNotEmpty && _passwordError != null) {
-                          setState(() {
-                            _passwordError = null;
-                          });
-                        }
-                      }),
-                  ElevatedButton(
-                    onPressed: _handleAuthorization,
-                    child: Text("Войти"),
+                  Padding(
+                    padding: EdgeInsets.all(5),
+                    child: Container(
+                      height: 10,
+                      child: _isLoading
+                          ? LinearProgressIndicator(
+                              minHeight: 5,
+                              value: null,
+                            )
+                          : null,
+                    ),
                   ),
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/register');
-                      },
-                      child: Text("Регистрация"))
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          TextFormField(
+                              controller: _loginController,
+                              decoration: InputDecoration(
+                                  hintText: "Введите номер телефона/почту",
+                                  errorText: _loginError),
+                              onChanged: (text) {
+                                if (text.isNotEmpty && _loginError != null) {
+                                  setState(() {
+                                    _loginError = null;
+                                  });
+                                }
+                              }),
+                          TextFormField(
+                              controller: _passwordController,
+                              decoration: InputDecoration(
+                                  hintText: "Введите пароль",
+                                  errorText: _passwordError),
+                              obscureText: true,
+                              onChanged: (text) {
+                                if (text.isNotEmpty && _passwordError != null) {
+                                  setState(() {
+                                    _passwordError = null;
+                                  });
+                                }
+                              }),
+                          ElevatedButton(
+                            onPressed: _isLoading ? null : _handleAuthorization,
+                            child: Text("Войти"),
+                          ),
+                          ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/register');
+                              },
+                              child: Text("Регистрация"))
+                        ],
+                      ),
+                    ),
+                  )
                 ],
               ),
             )));
@@ -96,6 +121,7 @@ class _LoginState extends State<LoginScreen> {
       return;
     } else {
       setState(() {
+        _isLoading = true;
         _loginError = null;
         _passwordError = null;
       });
@@ -106,6 +132,10 @@ class _LoginState extends State<LoginScreen> {
             login,
             password,
           );
+
+      setState(() {
+        _isLoading = false;
+      });
 
       if (authResult.data != null) {
         Navigator.of(context).pushNamedAndRemoveUntil('/main', (r) => false);

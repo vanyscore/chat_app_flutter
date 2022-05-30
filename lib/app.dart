@@ -44,8 +44,7 @@ class _AppState extends State<App> {
         ),
         Provider<ChatConnection>(
           create: (context) => ChatConnection(context.read<UserManager>(),
-              host: widget.host, port: widget.port)
-            ..checkConnection(),
+              host: widget.host, port: widget.port),
           dispose: (context, connection) => connection.disconnect(),
         )
       ],

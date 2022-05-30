@@ -27,7 +27,9 @@ class _ChatsState extends State<ChatsScreen> {
   initState() {
     super.initState();
 
-    context.read<ChatConnection>().listenMessages(_onNewMessage);
+    context.read<ChatConnection>()
+      ..listenMessages(_onNewMessage)
+      ..listenOnChatAdded(_onChatAdded);
 
     WidgetsBinding?.instance.addPostFrameCallback((timeStamp) {
       _load();
@@ -40,6 +42,10 @@ class _ChatsState extends State<ChatsScreen> {
   }
 
   Widget _getChatList(List<ChatInfo> chats) {
+    print('get chat list');
+
+    print('chats len ${chats.length}');
+
     return RefreshIndicator(
       child: Stack(
         children: [
@@ -95,7 +101,9 @@ class _ChatsState extends State<ChatsScreen> {
 
   @override
   deactivate() {
-    context.read<ChatConnection>().disableMessageListening(_onNewMessage);
+    context.read<ChatConnection>()
+      ..disableMessageListening(_onNewMessage)
+      ..disableOnChatAddedHandle(_onChatAdded);
 
     super.deactivate();
   }
@@ -126,6 +134,7 @@ class _ChatsState extends State<ChatsScreen> {
     });
   }
 
+  var _onMsgCounter = 0;
   _onNewMessage(ChatMessage message) {
     setState(() {
       try {
@@ -141,6 +150,32 @@ class _ChatsState extends State<ChatsScreen> {
 
       if (_chats.where((element) => element.id == message.chatId).isEmpty) {
         _load();
+      }
+    });
+
+    if (_onMsgCounter++ >= 3) {
+      _load();
+
+      _onMsgCounter = 0;
+    }
+  }
+
+  _onChatAdded(ChatInfo chat, bool? isAdd) {
+    context.read<ChatConnection>().connectToChat(chat.id);
+
+    setState(() {
+      if (isAdd == true) {
+        _chats.add(chat);
+      } else if (isAdd == false) {
+        _chats.removeWhere((element) => element.id == chat.id);
+      } else {
+        final chats = _chats.where((element) => element.id == chat.id);
+
+        if (chats.isNotEmpty) {
+          _chats.removeWhere((element) => element.id == chat.id);
+
+          _chats.add(chat);
+        }
       }
     });
   }
@@ -342,7 +377,7 @@ class _PrivateChatCard extends StatelessWidget {
                           if (lastMsgSenderName != null) ...{
                             if (isOurMsg) ...{
                               Text(
-                                "Вы",
+                                "Вы:",
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               )
                             },

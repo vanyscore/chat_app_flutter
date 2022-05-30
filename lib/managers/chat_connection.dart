@@ -4,6 +4,7 @@ import 'package:signalr_core/signalr_core.dart';
 
 typedef OnNewMessageCallback = void Function(ChatMessage message);
 typedef OnUpdateUnreadMessages = void Function(int? unreadMessages);
+typedef OnChatUpdated = void Function(ChatInfo chat, bool isAdd);
 
 class ChatConnection {
   final UserManager userManager;
@@ -17,6 +18,7 @@ class ChatConnection {
   List<OnNewMessageCallback> _onMessageHandlers = List.empty(growable: true);
   List<OnUpdateUnreadMessages> _unreadMessagesHandlers =
       List.empty(growable: true);
+  List<OnChatUpdated> _onChatAddedHandlers = List.empty(growable: true);
 
   Map<int, bool> _onlineUsers = new Map();
 
@@ -48,8 +50,16 @@ class ChatConnection {
     _unreadMessagesHandlers.add(onUpdateUnreadMessages);
   }
 
+  listenOnChatAdded(OnChatUpdated callback) {
+    _onChatAddedHandlers.add(callback);
+  }
+
   disableOnUpdateUnreadMessages(OnUpdateUnreadMessages callback) async {
     _unreadMessagesHandlers.remove(callback);
+  }
+
+  disableOnChatAddedHandle(OnChatUpdated callback) {
+    _onChatAddedHandlers.remove(callback);
   }
 
   sendMessage(int chatId, String message) async {
@@ -76,7 +86,8 @@ class ChatConnection {
       });
 
       _connection!.on(_EventTypes.OnMessage, _onMessage);
-      _connection?.on(_EventTypes.OnUnreadMessages, _onUnreadMessages);
+      _connection!.on(_EventTypes.OnUnreadMessages, _onUnreadMessages);
+      _connection!.on(_EventTypes.OnChatUpdated, _onChatUpdated);
 
       _connection?.on("UserConnection", _onUserConnectionChanged);
 
@@ -120,6 +131,19 @@ class ChatConnection {
     });
   }
 
+  _onChatUpdated(List<dynamic>? arguments) {
+    print('Event: ${_EventTypes.OnChatUpdated}: ' + arguments.toString());
+
+    final chatInfo = ChatInfo.fromJson(arguments![0]['value']);
+    final isAdd = arguments[1] as bool;
+
+    print('isAdd: $isAdd');
+
+    _onChatAddedHandlers.forEach((element) {
+      element.call(chatInfo, isAdd);
+    });
+  }
+
   void _onUserConnectionChanged(List<dynamic>? arguments) {
     if (arguments != null) {
       final int userId = arguments[0];
@@ -133,4 +157,5 @@ class ChatConnection {
 class _EventTypes {
   static const OnMessage = 'OnMessage';
   static const OnUnreadMessages = 'OnUpdateUnreadMessages';
+  static const OnChatUpdated = 'OnChatUpdated';
 }

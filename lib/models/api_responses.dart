@@ -74,8 +74,6 @@ class ChatInfo {
       }
     }
 
-    print('msg:' + desc.toString());
-
     return desc;
   }
 

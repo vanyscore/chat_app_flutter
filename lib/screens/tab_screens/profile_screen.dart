@@ -119,7 +119,7 @@ class _ProfileInfo extends StatelessWidget {
                     if (image != null) {
                       final result = await context
                           .read<UserInteractor>()
-                          .updateImage(profile.id, image.path);
+                          .updateImage(profile.id, await image.readAsBytes());
 
                       if (result == null) {
                         state?.makeRequest();

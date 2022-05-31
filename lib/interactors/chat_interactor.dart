@@ -176,9 +176,9 @@ class ChatInteractor {
     }
   }
 
-  sendImageToChat(int id, String path) async {
+  sendImageToChat(int id, List<int> bytes) async {
     final formData = FormData.fromMap({
-      'file': await MultipartFile.fromFile(path,
+      'file': MultipartFile.fromBytes(bytes,
           filename: 'file', contentType: MediaType.parse('image/png'))
     });
 

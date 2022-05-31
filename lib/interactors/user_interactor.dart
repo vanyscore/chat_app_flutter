@@ -61,12 +61,10 @@ class UserInteractor {
     }
   }
 
-  Future<String?> updateImage(int userId, String imagePath) async {
+  Future<String?> updateImage(int userId, List<int> bytes) async {
     try {
-      print(imagePath);
-
       final formData = FormData.fromMap({
-        'image': await MultipartFile.fromFile(imagePath,
+        'image': await MultipartFile.fromBytes(bytes,
             filename: 'image', contentType: MediaType.parse('image/png'))
       });
 

@@ -63,9 +63,8 @@ class ChatAppBar extends StatelessWidget {
                   imageQuality: 75);
 
               if (image != null) {
-                context
-                    .read<ChatInteractor>()
-                    .sendImageToChat(chatData.chatInfo.id, image.path);
+                context.read<ChatInteractor>().sendImageToChat(
+                    chatData.chatInfo.id, await image.readAsBytes());
               }
             },
             icon: Icon(

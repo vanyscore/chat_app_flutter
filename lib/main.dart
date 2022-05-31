@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 void main() async {
   runApp(App(
-    host: '192.168.0.4',
+    host: '*',
     port: 16214,
   ));
 }

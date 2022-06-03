@@ -1,16 +1,18 @@
-# chat_app
-
-Flutter chat client for .Net App
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<h1>Приложение - Мессенджер на Flutter</h1>
+<p>Работает с Api в указанном репозитории: https://github.com/vanyscore/chat_api_net_core</p>
+<div>
+  <img src="https://github.com/vanyscore/chat_app_flutter/blob/main/screenshots/flutter_01.png" width="200" height="380"/>
+  <img src="https://github.com/vanyscore/chat_app_flutter/blob/main/screenshots/flutter_02.png" width="200" height="380"/>
+  <img src="https://github.com/vanyscore/chat_app_flutter/blob/main/screenshots/flutter_03.png" width="200" height="380"/>
+  <img src="https://github.com/vanyscore/chat_app_flutter/blob/main/screenshots/flutter_04.png" width="200" height="380"/>
+</div>
+<div>
+  <img src="https://github.com/vanyscore/chat_app_flutter/blob/main/screenshots/flutter_05.png" width="200" height="380"/>
+  <img src="https://github.com/vanyscore/chat_app_flutter/blob/main/screenshots/flutter_06.png" width="200" height="380"/>
+  <img src="https://github.com/vanyscore/chat_app_flutter/blob/main/screenshots/flutter_07.png" width="200" height="380"/>
+  <img src="https://github.com/vanyscore/chat_app_flutter/blob/main/screenshots/flutter_08.png" width="200" height="380"/>
+</div>
+<div>
+  <img src="https://github.com/vanyscore/chat_app_flutter/blob/main/screenshots/flutter_09.png" width="200" height="380"/>
+  <img src="https://github.com/vanyscore/chat_app_flutter/blob/main/screenshots/flutter_10.png" width="200" height="380"/>
+</div>
